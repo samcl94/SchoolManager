@@ -1,6 +1,7 @@
 ﻿namespace SchoolApi.GenerateFakeData
 {
     using Bogus;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.EntityFrameworkCore.Query;
     using SchoolApi.Models;
     using System.Security.Policy;
@@ -29,8 +30,8 @@
             int counter = 1;
 
             var faker = new Faker<InfoGroup>("es")
-                .RuleFor(s => s.CodeGroup, f => $"G{counter++.ToString("D2")}")
-                .RuleFor(s => s.Label, f => $"GROUP {counter.ToString("D2")}");
+                .RuleFor(s => s.CodeGroup, f => $"G{counter.ToString("D2")}")
+                .RuleFor(s => s.Label, f => $"GROUP {counter++.ToString("D2")}");
 
             return faker.Generate(numberGroups);
         }
@@ -44,10 +45,11 @@
             {
                 var memberPerGroup = faker.Random.Int(3, 30);
                 var pickStudents = faker.PickRandom(students, memberPerGroup).ToList();
+                var order = 1;
 
                 foreach (var s in pickStudents)
                 {
-                    groupStudents.Add(new GroupStudent { CodeGroup = g.CodeGroup, StudentDni = s.Dni });
+                    groupStudents.Add(new GroupStudent { CodeGroup = g.CodeGroup, StudentDni = s.Dni, Ordre = order++});
 
                 }
 
@@ -57,6 +59,35 @@
 
         }
 
+        public static List<Subject> GenerateFakeSubjects(int numberSubjects)
+        {
+            int counter = 1;
+
+            var faker = new Faker<Subject>("es")
+                .RuleFor(s => s.CodeSubject, f => $"S{counter.ToString("D2")}")
+                .RuleFor(s => s.Label, f => $"Subject {counter++.ToString("D2")}");
+
+            return faker.Generate(numberSubjects);
+
+        }
+
+        public static List<SubjectStudent> GenerateFakeSubjectStudents(List<Student> students, List<Subject> subjects)
+        {
+            var faker = new Faker("es");
+            var subjectStudents = new List<SubjectStudent>();
+
+            foreach (var s in students)
+            {
+                var randomSubjects = faker.PickRandom(subjects, faker.Random.Int(2, 13));
+
+                foreach (var s2 in randomSubjects)
+                {
+                    subjectStudents.Add(new SubjectStudent { CodeSubject = s2.CodeSubject, StudentDni = s.Dni, Ordre = 1 });
+
+                }
+            }
+            return subjectStudents;
+        }
 
     }
 
