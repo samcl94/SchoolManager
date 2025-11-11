@@ -1,6 +1,8 @@
 ﻿namespace SchoolApi.GenerateFakeData
 {
     using Bogus;
+    using EscuelaApi.Models;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.EntityFrameworkCore.Query;
     using SchoolApi.Models;
     using System.Security.Policy;
@@ -26,11 +28,10 @@
 
         public static List<InfoGroup> GenerateFakeGroups(int numberGroups)
         {
-            int counter = 1;
-
             var faker = new Faker<InfoGroup>("es")
-                .RuleFor(s => s.CodeGroup, f => $"G{counter++.ToString("D2")}")
-                .RuleFor(s => s.Label, f => $"GROUP {counter.ToString("D2")}");
+                .RuleFor(s => s.CodeGroup, f => $"G{f.IndexFaker + 1:D2}")
+                .RuleFor(s => s.Ordre, f => f.IndexFaker + 1)
+                .RuleFor(s => s.Label, f => $"GROUP {f.IndexFaker + 1:D2}");
 
             return faker.Generate(numberGroups);
         }
@@ -40,24 +41,76 @@
             var faker = new Faker("es");
             var groupStudents = new List<GroupStudent>();
 
+            //Restriction: Each student can be only in one group
+            var availableStudents = new List<Student>(students);
+
             foreach (var g in groups)
             {
                 var memberPerGroup = faker.Random.Int(3, 30);
-                var pickStudents = faker.PickRandom(students, memberPerGroup).ToList();
+                var pickStudents = faker.PickRandom(availableStudents, Math.Min(memberPerGroup, availableStudents.Count)).ToList();
 
                 foreach (var s in pickStudents)
                 {
-                    groupStudents.Add(new GroupStudent { CodeGroup = g.CodeGroup, StudentDni = s.Dni });
+                    groupStudents.Add(new GroupStudent { CodeGroup = g.CodeGroup, StudentDni = s.Dni});
 
                 }
 
+                availableStudents.RemoveAll(s => pickStudents.Contains(s));
             }
 
             return groupStudents;
 
         }
 
+        public static List<Subject> GenerateFakeSubjects(int numberSubjects)
+        {
 
+            var faker = new Faker<Subject>("es")
+                .RuleFor(s => s.CodeSubject, f => $"S{f.IndexFaker + 1:D2}")
+                .RuleFor(s => s.Ordre, f => f.IndexFaker + 1)
+                .RuleFor(s => s.Label, f => $"Subject {f.IndexFaker + 1:D2}");
+
+            return faker.Generate(numberSubjects);
+
+        }
+
+        public static List<SubjectStudent> GenerateFakeSubjectStudents(List<GroupStudent> groupStudents, List<GroupSubject> groupSubjects)
+        {
+            var faker = new Faker("es");
+            var subjectStudents = new List<SubjectStudent>();
+
+            //Take each student and his group
+            foreach (var gs in groupStudents)
+            {
+                var subjectsAvailables = groupSubjects.FindAll(s => s.CodeGroup == gs.CodeGroup);
+                var subjects = faker.PickRandom(subjectsAvailables, faker.Random.Int(3, subjectsAvailables.Count)).ToList();
+
+                foreach (var s in subjects)
+                {
+                    subjectStudents.Add(new SubjectStudent { CodeSubject = s.CodeSubject, StudentDni = gs.StudentDni});
+                }
+            }
+            return subjectStudents;
+        }
+
+        public static List<GroupSubject> GenerateFakeGroupsSubject(List<InfoGroup> groups, List<Subject> subjects)
+        {
+            var faker = new Faker("es");
+            var groupsSubject = new List<GroupSubject>();
+
+            foreach (var g in groups)
+            { 
+                var subjectsPerGroups =faker.Random.Int(3, 13);
+                var subjectsInGroup = faker.PickRandom(subjects, subjectsPerGroups).ToList();
+
+                foreach (var s in subjectsInGroup) 
+                { 
+                    groupsSubject.Add(new GroupSubject {CodeGroup = g.CodeGroup, CodeSubject = s.CodeSubject});
+                }
+            }
+
+            return groupsSubject;
+        }
     }
 
 }

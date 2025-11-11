@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SchoolApi.Models;
+using System;
 using System.Collections.Generic;
 
 namespace SchoolApi.Models;
@@ -17,8 +18,7 @@ public partial class Student
 
     public string? ParentEmergencyPhone2 { get; set; }
 
-    public virtual ICollection<InfoGroup> CodeGroups { get; set; } = new List<InfoGroup>();
-
     public virtual ICollection<GroupStudent> GroupStudents { get; set; } = new List<GroupStudent>();
 
+    public virtual ICollection<SubjectStudent> SubjectStudents { get; set; } = new List<SubjectStudent>();
 }

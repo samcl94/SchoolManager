@@ -18,7 +18,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-var test = true;
+
+//Var used to generate data in BBDD
+var test = false;
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
