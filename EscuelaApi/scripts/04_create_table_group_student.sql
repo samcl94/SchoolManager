@@ -9,7 +9,6 @@ CREATE TABLE group_student (
     CONSTRAINT fk_group FOREIGN KEY (code_group)
         REFERENCES info_group(code_group)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    ordre INTEGER NOT NULL
+        ON UPDATE CASCADE
 );
 GRANT ALL PRIVILEGES ON TABLE group_student TO school_user;

@@ -9,8 +9,6 @@ public partial class GroupStudent
 
     public string StudentDni { get; set; } = null!;
 
-    public int Ordre { get; set; }
-
     public virtual InfoGroup CodeGroupNavigation { get; set; } = null!;
 
     public virtual Student StudentDniNavigation { get; set; } = null!;

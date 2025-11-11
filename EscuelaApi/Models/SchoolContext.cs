@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using EscuelaApi.Models;
 using Microsoft.EntityFrameworkCore;
 using SchoolApi.Models;
+using System;
+using System.Collections.Generic;
 
 namespace SchoolApi.Models;
 
@@ -26,6 +27,9 @@ public partial class SchoolContext : DbContext
 
     public virtual DbSet<SubjectStudent> SubjectStudents { get; set; }
 
+    public virtual DbSet<GroupSubject> GroupSubjects { get; set; }
+
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<GroupStudent>(entity =>
@@ -40,9 +44,6 @@ public partial class SchoolContext : DbContext
             entity.Property(e => e.StudentDni)
                 .HasMaxLength(15)
                 .HasColumnName("student_dni");
-            entity.Property(e => e.Ordre)
-                .HasDefaultValue(0)
-                .HasColumnName("ordre");
 
             entity.HasOne(d => d.CodeGroupNavigation).WithMany(p => p.GroupStudents)
                 .HasForeignKey(d => d.CodeGroup)
@@ -65,6 +66,9 @@ public partial class SchoolContext : DbContext
             entity.Property(e => e.Label)
                 .HasMaxLength(100)
                 .HasColumnName("label");
+            entity.Property(e => e.Ordre)
+                .HasDefaultValue(0)
+                .HasColumnName("ordre");
         });
 
         modelBuilder.Entity<Student>(entity =>
@@ -103,6 +107,9 @@ public partial class SchoolContext : DbContext
             entity.Property(e => e.Label)
                 .HasMaxLength(100)
                 .HasColumnName("label");
+            entity.Property(e => e.Ordre)
+                .HasDefaultValue(0)
+                .HasColumnName("ordre");
         });
 
         modelBuilder.Entity<SubjectStudent>(entity =>
@@ -117,7 +124,6 @@ public partial class SchoolContext : DbContext
             entity.Property(e => e.CodeSubject)
                 .HasMaxLength(50)
                 .HasColumnName("code_subject");
-            entity.Property(e => e.Ordre).HasColumnName("ordre");
 
             entity.HasOne(d => d.CodeSubjectNavigation).WithMany(p => p.SubjectStudents)
                 .HasForeignKey(d => d.CodeSubject)
@@ -128,7 +134,37 @@ public partial class SchoolContext : DbContext
                 .HasConstraintName("fk_student");
         });
 
-        OnModelCreatingPartial(modelBuilder);
+        modelBuilder.Entity<GroupSubject>(entity =>
+        {
+            entity.HasKey(e => new { e.CodeGroup, e.CodeSubject })
+                .HasName("group_subject_pkey");
+
+            entity.ToTable("group_subject", "public");
+
+            entity.Property(e => e.CodeGroup)
+                .HasColumnName("code_group")
+                .HasMaxLength(50);
+
+            entity.Property(e => e.CodeSubject)
+                .HasColumnName("code_subject")
+                .HasMaxLength(50);
+
+            entity.HasOne(d => d.InfoGroup)
+                .WithMany(p => p.GroupSubjects)
+                .HasForeignKey(d => d.CodeGroup)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("group_subject_code_group_fkey");
+
+            entity.HasOne(d => d.Subject)
+                .WithMany(p => p.GroupSubjects)
+                .HasForeignKey(d => d.CodeSubject)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("group_subject_code_subject_fkey");
+        });
+
+            OnModelCreatingPartial(modelBuilder);
+
+
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

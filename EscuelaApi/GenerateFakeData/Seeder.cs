@@ -14,12 +14,14 @@ namespace SchoolApi.GenerateFakeData
             var students = SeedData.GenerateFakeStudents(20000);
             var groups = SeedData.GenerateFakeGroups(30);
             var subjects = SeedData.GenerateFakeSubjects(30);
+            var groupSubject = SeedData.GenerateFakeGroupsSubject(groups, subjects);
             var groupStudents = SeedData.GenerateFakeGroupsStudents(students, groups);
-            var subjectStudents = SeedData.GenerateFakeSubjectStudents(students, subjects);
+            var subjectStudents = SeedData.GenerateFakeSubjectStudents(groupStudents, groupSubject);
 
             await context.Students.AddRangeAsync(students);
             await context.InfoGroups.AddRangeAsync(groups);
             await context.Subjects.AddRangeAsync(subjects);
+            await context.GroupSubjects.AddRangeAsync(groupSubject);
             await context.GroupStudents.AddRangeAsync(groupStudents);
             await context.SubjectStudents.AddRangeAsync(subjectStudents);
             await context.SaveChangesAsync();

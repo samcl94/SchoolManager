@@ -9,7 +9,6 @@ CREATE TABLE subject_student (
     CONSTRAINT fk_subject FOREIGN KEY (code_subject)
         REFERENCES subject(code_subject)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    ordre INTEGER NOT NULL
+        ON UPDATE CASCADE
 );
 GRANT ALL PRIVILEGES ON TABLE subject_student TO school_user;

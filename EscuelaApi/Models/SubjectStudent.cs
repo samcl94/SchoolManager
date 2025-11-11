@@ -9,8 +9,6 @@ public partial class SubjectStudent
 
     public string CodeSubject { get; set; } = null!;
 
-    public int Ordre { get; set; }
-
     public virtual Subject CodeSubjectNavigation { get; set; } = null!;
 
     public virtual Student StudentDniNavigation { get; set; } = null!;
